@@ -1,1 +1,338 @@
-index.html
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>المسلم المعاصر</title>
+
+<!-- خط عثماني مضمّن (استبدل الـ Base64 بالخط الحقيقي) -->
+<style>
+@font-face{
+  font-family: 'Othmani';
+  src: url('data:font/ttf;base64,REPLACE_WITH_BASE64_FONT') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ألوان وتصميم */
+:root{
+  --gold: #b88728;
+  --gold-dark: #9a6f21;
+  --muted: #6b7280;
+  --card: #ffffff;
+  --bg: #fbfbfb;
+  --accent: #f4f1e6; /* خلفيات فاتحة دافئة */
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;padding:0;background:var(--bg);font-family:system-ui,Arial,Segoe UI, Tahoma;direction:rtl;color:#17202a}
+header.site-header{
+  height:220px;
+  background-image: url('header-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.header-overlay{
+  position:absolute;inset:0;background:linear-gradient(180deg, rgba(0,0,0,0.25), rgba(0,0,0,0.18));
+  border-bottom: 6px solid rgba(0,0,0,0.06);
+}
+.header-title{
+  position:relative; z-index:2; text-align:center;
+  color:var(--gold); font-family:'Othmani', serif; font-size:42px; letter-spacing:1px;
+  text-shadow: 0 2px 0 rgba(0,0,0,0.15);
+  padding:6px 14px; background: rgba(255,255,255,0.02); border-radius:6px;
+}
+
+/* المحتوى */
+main{max-width:980px;margin:-40px auto 80px;padding:12px}
+.container{display:flex;gap:16px;flex-wrap:wrap}
+.left{flex:1 1 420px}
+.right{width:340px;flex:0 0 340px}
+
+/* صندوق البحث والقائمة */
+.card{
+  background:var(--card);border-radius:12px;padding:12px;box-shadow:0 8px 24px rgba(18,22,26,0.06);
+}
+.search{width:100%;padding:10px;border-radius:8px;border:1px solid #e6e9ee;font-size:15px;margin-bottom:10px}
+.folder{padding:14px;border-radius:10px;background:linear-gradient(180deg,#fff,#fbfbfb);cursor:pointer;border:1px solid rgba(0,0,0,0.04);font-weight:700}
+.folder:hover{box-shadow:0 8px 30px rgba(24,30,35,0.04)}
+.list{max-height:520px;overflow:auto;margin-top:12px;padding-right:6px}
+
+/* عنصر المحاضرة */
+.item{
+  display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:10px;margin-bottom:10px;background:#fff;border:1px solid rgba(0,0,0,0.03)
+}
+.item .title{font-weight:700;color:#0b2030}
+.item .meta{font-size:13px;color:var(--muted)}
+.item button{align-self:flex-start;padding:8px 10px;border-radius:8px;border:none;background:var(--gold);color:#fff;font-weight:700;cursor:pointer}
+.item button:hover{background:var(--gold-dark)}
+
+/* المشغل الثابت أسفل الصفحة */
+.player-fixed{
+  position:fixed;left:16px;right:16px;bottom:16px;background:#fff;border-radius:12px;padding:10px;box-shadow:0 18px 40px rgba(8,12,20,0.12);display:flex;gap:12px;align-items:center;z-index:999;
+}
+.player-info{flex:1;min-width:0}
+.player-title{font-weight:800;color:#072029}
+.player-controls{display:flex;gap:8px;align-items:center}
+.small-btn{padding:8px 10px;border-radius:8px;border:none;background:#072029;color:#fff;cursor:pointer;font-weight:700}
+.small-btn:disabled{opacity:0.5;cursor:not-allowed}
+.progress{width:100%;height:6px;background:#f1f3f5;border-radius:6px;overflow:hidden;margin-top:8px}
+.progress > i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-dark));width:0%}
+
+/* قائمة التشغيل الجانبية */
+.playlist{margin-top:12px;padding:8px;border-radius:8px;background:linear-gradient(180deg,#fff,#faf9f6);border:1px solid rgba(0,0,0,0.03);max-height:400px;overflow:auto}
+.pl-item{padding:8px;border-radius:8px;margin-bottom:8px;border:1px solid rgba(0,0,0,0.02);cursor:pointer}
+.pl-item.active{background:linear-gradient(90deg, rgba(184,135,40,0.12), rgba(184,135,40,0.06));border-color:rgba(184,135,40,0.18)}
+
+/* تجاوب */
+@media(max-width:900px){
+  .right{width:100%}
+  main{padding:10px;margin-top:-30px}
+  header.site-header{height:180px}
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-overlay"></div>
+  <div class="header-title">المسلم المعاصر</div>
+</header>
+
+<main>
+  <div class="container">
+    <div class="left">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div style="font-weight:800;font-size:18px">المحاضرات</div>
+          <div style="color:var(--muted);font-size:13px">قسم: المهندس أيمن عبدالرحيم</div>
+        </div>
+
+        <input id="search" class="search" placeholder="ابحث عن محاضرة..." />
+
+        <div id="folders">
+          <div class="folder" onclick="openFolder('المهندس أيمن عبدالرحيم')">المهندس أيمن عبدالرحيم</div>
+        </div>
+
+        <div id="listArea" class="list" style="margin-top:12px">
+          <!-- القائمة ستملأ برمجياً -->
+        </div>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="card">
+        <div style="font-weight:800">قائمة التشغيل</div>
+        <div id="playlist" class="playlist" style="margin-top:8px">
+          <!-- ستملأ برمجياً -->
+        </div>
+        <div style="margin-top:12px;color:var(--muted);font-size:13px">
+          اضغط على عنوان أي محاضرة لتشغيلها في المشغل أسفل الشاشة.
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- مشغل ثابت -->
+<div class="player-fixed" id="playerBox" style="display:none">
+  <div style="width:64px;height:64px;border-radius:8px;background:linear-gradient(180deg,var(--gold),var(--gold-dark));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900">ر</div>
+  <div class="player-info">
+    <div class="player-title" id="nowTitle">لا شيء</div>
+    <div style="display:flex;gap:8px;align-items:center;margin-top:6px">
+      <div class="player-controls">
+        <button class="small-btn" id="prevBtn" onclick="prevTrack()" disabled>السابق</button>
+        <button class="small-btn" id="playPauseBtn" onclick="playPause()" disabled>تشغيل</button>
+        <button class="small-btn" id="nextBtn" onclick="nextTrack()" disabled>التالي</button>
+      </div>
+      <div style="margin-inline-start:auto;display:flex;align-items:center;gap:8px">
+        <label style="font-size:13px;color:var(--muted)">سرعة</label>
+        <select id="speedSel" onchange="setSpeed(this.value)">
+          <option value="1">1x</option>
+          <option value="1.25">1.25x</option>
+          <option value="1.5">1.5x</option>
+          <option value="2">2x</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="progress" style="margin-top:8px">
+      <i id="progressBar"></i>
+    </div>
+  </div>
+</div>
+
+<script>
+/* === بيانات المحاضرات === */
+const lectures = {
+  "المهندس أيمن عبدالرحيم": [
+    { title: "تأسيس وعي المسلم المعاصر #المهندس أيمن عبدالرحيم", url: "https://ia903104.us.archive.org/33/items/07_20191120/01.MP3" },
+    { title: "وعي المسلم المعاصر #المهندس أيمن عبدالرحيم", url: "https://ia803104.us.archive.org/33/items/07_20191120/02.MP3" },
+    { title: "بداية غزو المجتمع الإسلامي - اندونيسيا #المهندس أيمن عبدالرحيم", url: "https://ia903104.us.archive.org/33/items/07_20191120/03.MP3" },
+    { title: "استكمال اندونيسيا #المهندس أيمن عبدالرحيم", url: "https://ia803104.us.archive.org/33/items/07_20191120/04.MP3" },
+    { title: "الهند المسلمة #المهندس أيمن عبدالرحيم", url: "https://ia803104.us.archive.org/33/items/07_20191120/05.MP3" },
+    { title: "تابع الهند #المهندس أيمن عبدالرحيم", url: "https://ia903104.us.archive.org/33/items/07_20191120/06.MP3" },
+    { title: "أفريقيا المسلمة #المهندس أيمن عبدالرحيم", url: "https://ia803104.us.archive.org/33/items/07_20191120/07.mp3" },
+    { title: "تابع أفريقيا المسلمة #المهندس أيمن عبدالرحيم", url: "https://ia803104.us.archive.org/33/items/07_20191120/08.MP3" },
+    { title: "اللغة والاستعمار #المهندس أيمن عبدالرحيم", url: "https://ia903104.us.archive.org/33/items/07_20191120/09.MP3" },
+    { title: "وماذا بعد تأسيس الوعي #المهندس أيمن عبدالرحيم", url: "https://ia903104.us.archive.org/33/items/07_20191120/10.MP3" },
+    { title: "إيران #المهندس أيمن عبدالرحيم", url: "https://ia903104.us.archive.org/33/items/07_20191120/11.mp3" },
+    { title: "الدولة العثمانية #المهندس أيمن عبدالرحيم", url: "https://ia803104.us.archive.org/33/items/07_20191120/12.mp3" }
+  ]
+};
+
+/* === حالة التشغيل === */
+let currentLecturer = "";
+let currentList = [];
+let currentIndex = 0;
+let audio = new Audio();
+audio.preload = "metadata";
+
+/* عناصر DOM */
+const listArea = document.getElementById('listArea');
+const playlistEl = document.getElementById('playlist');
+const playerBox = document.getElementById('playerBox');
+const nowTitle = document.getElementById('nowTitle');
+const playPauseBtn = document.getElementById('playPauseBtn');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const progressBar = document.getElementById('progressBar');
+const speedSel = document.getElementById('speedSel');
+
+/* افتح المجلد */
+function openFolder(name){
+  currentLecturer = name;
+  currentList = lectures[name] ? lectures[name].slice() : [];
+  renderList(currentList);
+  buildPlaylist();
+  document.getElementById('search').focus();
+}
+
+/* عرض القائمة */
+function renderList(items){
+  listArea.innerHTML = '';
+  if(items.length === 0){ listArea.innerHTML = '<div style="color:var(--muted)">لا توجد محاضرات.</div>'; return; }
+  items.forEach((it, idx) => {
+    const div = document.createElement('div');
+    div.className = 'item';
+    div.innerHTML = `
+      <div>
+        <div class="title">${it.title}</div>
+        <div class="meta">${it.url}</div>
+      </div>
+      <div>
+        <button onclick="playIndex(${idx})">تشغيل</button>
+      </div>
+    `;
+    listArea.appendChild(div);
+  });
+}
+
+/* بناء قائمة التشغيل الجانبية */
+function buildPlaylist(){
+  playlistEl.innerHTML = '';
+  currentList.forEach((it, idx) => {
+    const p = document.createElement('div');
+    p.className = 'pl-item';
+    p.id = 'pl-'+idx;
+    p.innerText = `${idx+1} • ${it.title}`;
+    p.onclick = ()=>playIndex(idx);
+    playlistEl.appendChild(p);
+  });
+}
+
+/* تشغيل فهرس */
+function playIndex(i){
+  if(!currentList[i]) return;
+  currentIndex = i;
+  audio.src = currentList[i].url;
+  audio.playbackRate = parseFloat(speedSel.value || 1);
+  audio.play().catch(()=>{/* تجاهل أخطاء التشغيل التلقائي */});
+  showPlayer();
+  updateNowTitle();
+  updateControls();
+  highlightPL();
+}
+
+/* عرض المشغل */
+function showPlayer(){
+  playerBox.style.display = 'flex';
+}
+
+/* تحديث عنوان التشغيل */
+function updateNowTitle(){
+  nowTitle.innerText = currentList[currentIndex] ? currentList[currentIndex].title : 'لا شيء';
+}
+
+/* تحكم تشغيل / إيقاف */
+function playPause(){
+  if(audio.paused){ audio.play(); playPauseBtn.innerText = 'إيقاف'; }
+  else { audio.pause(); playPauseBtn.innerText = 'تشغيل'; }
+}
+
+/* السابق و التالي */
+function prevTrack(){ if(currentIndex>0) playIndex(currentIndex-1); }
+function nextTrack(){ if(currentIndex < currentList.length-1) playIndex(currentIndex+1); }
+
+/* تفعيل/تعطيل أزرار */
+function updateControls(){
+  prevBtn.disabled = currentIndex === 0;
+  nextBtn.disabled = currentIndex >= currentList.length-1;
+  playPauseBtn.disabled = !audio.src;
+  playPauseBtn.innerText = audio.paused ? 'تشغيل' : 'إيقاف';
+}
+
+/* تقدم التقدم */
+audio.ontimeupdate = function(){
+  if(!audio.duration) return;
+  const perc = (audio.currentTime / audio.duration) * 100;
+  progressBar.style.width = perc + '%';
+};
+
+/* عند نهاية المقطع */
+audio.onended = function(){
+  if(currentIndex < currentList.length-1){
+    currentIndex++;
+    playIndex(currentIndex);
+  } else {
+    playPauseBtn.innerText = 'تشغيل';
+  }
+  updateControls();
+};
+
+/* تغيير السرعة */
+function setSpeed(v){
+  audio.playbackRate = parseFloat(v);
+}
+
+/* إبراز في القائمة */
+function highlightPL(){
+  document.querySelectorAll('.pl-item').forEach(el => el.classList.remove('active'));
+  const cur = document.getElementById('pl-'+currentIndex);
+  if(cur) cur.classList.add('active');
+}
+
+/* البحث اللحظي */
+document.getElementById('search').addEventListener('input', function(){
+  const t = this.value.trim().toLowerCase();
+  if(!currentLecturer) return;
+  const filtered = lectures[currentLecturer].filter(it => it.title.toLowerCase().includes(t));
+  currentList = filtered;
+  renderList(currentList);
+  buildPlaylist();
+});
+
+/* تحكم سرعة عامة (عن الطريق القائمة الأساسية) */
+speedSel.addEventListener('change', function(){ setSpeed(this.value); });
+
+/* بدء: افتح المجلد تلقائياً */
+openFolder('المهندس أيمن عبدالرحيم');
+updateControls();
+
+</script>
+</body>
+</html>
